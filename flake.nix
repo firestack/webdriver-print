@@ -72,7 +72,8 @@
 					drv = wdp;
 				};
 
-				devShells.default = pkgs.mkShell {
+				devShells.default = self.devShells.${system}.wdp;
+				devShells.wdp = pkgs.mkShell {
 					inputsFrom = builtins.attrValues self.checks;
 
 					# Extra inputs can be added here
