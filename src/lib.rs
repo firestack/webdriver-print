@@ -6,18 +6,18 @@ pub type Result<T, E = Box<dyn std::error::Error + Send + Sync + 'static>> = cor
 
 
 #[derive(Debug)]
-pub struct WDPrint {
+pub struct PrintPDF {
 	parameters: PrintParameters
 }
 
-impl From<PrintParameters> for WDPrint
+impl From<PrintParameters> for PrintPDF
 {
 	fn from(parameters: PrintParameters) -> Self {
-		WDPrint { parameters }
+		PrintPDF { parameters }
 	}
 }
 
-impl fantoccini::wd::WebDriverCompatibleCommand for WDPrint {
+impl fantoccini::wd::WebDriverCompatibleCommand for PrintPDF {
 	fn endpoint(
 		&self,
 		base_url: &url::Url,
