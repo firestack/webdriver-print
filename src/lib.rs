@@ -16,3 +16,20 @@ impl From<PrintParameters> for WDPrint
 		WDPrint { parameters }
 	}
 }
+
+impl fantoccini::wd::WebDriverCompatibleCommand for WDPrint {
+	fn endpoint(
+		&self,
+		base_url: &url::Url,
+		session_id: Option<&str>,
+	) -> Result<url::Url, url::ParseError> {
+		base_url.join(&format!("session/{}/print", session_id.as_ref().unwrap()))
+	}
+
+	fn method_and_body(&self, _request_url: &url::Url) -> (http::Method, Option<String>) {
+		(
+			http::Method::POST,
+			Some(serde_json::to_string(&self.parameters).unwrap()),
+		)
+	}
+}
