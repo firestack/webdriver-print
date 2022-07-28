@@ -23,6 +23,15 @@ pub struct Options {
 	pub headless: bool,
 }
 
+pub async fn print_pdf(c: &fantoccini::Client, parameters: PrintParameters) -> Result<Vec<u8>> {
+	// let print_command: WDPrint = parameters.into();
+
+	let json_cmd_result = c.issue_cmd(PrintPDF { parameters }).await?;
+	let string_value = json_cmd_result.as_str().map(ToOwned::to_owned);
+	let encoded_pdf: String = string_value.ok_or("Printed result was empty")?;
+
+	Ok(base64::decode(&encoded_pdf)?)
+}
 
 #[derive(Debug)]
 pub struct PrintPDF {
