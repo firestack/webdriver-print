@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
 		].into_iter().collect()
 	};
 
-	let client = ClientBuilder::rustls()
+	let webdriver = ClientBuilder::rustls()
 		.capabilities(capabilities)
 		.connect(options.webdriver_url.as_str())
 		.await?;
@@ -32,12 +32,12 @@ async fn main() -> Result<()> {
 		..Default::default()
 	};
 
-	let pdf_result = write_pdf(&client, &options, pdf_print_parameters).await;
+	let pdf_result = write_pdf(&webdriver, &options, pdf_print_parameters).await;
 	if pdf_result.is_err() && options.keep_failure {
 		tokio::time::sleep(Duration::from_secs(10)).await;
 	}
 
-	client.close().await?;
+	webdriver.close().await?;
 
 	pdf_result
 }
