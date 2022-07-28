@@ -27,5 +27,12 @@ async fn main() -> Result<()> {
 		.await?;
 
 
+	let pdf_print_parameters = PrintParameters {
+		background: true,
+		..Default::default()
+	};
+
+	let pdf_result = write_pdf(&client, &options, pdf_print_parameters).await;
+
 	client.close().await?;
 }
