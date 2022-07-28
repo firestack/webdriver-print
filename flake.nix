@@ -33,14 +33,14 @@
 
 				# Build the actual crate itself, reusing the dependency
 				# artifacts from above.
-				cdp-print = craneLib.buildPackage {
+				wdp = craneLib.buildPackage {
 					inherit cargoArtifacts src;
 				};
 			in
 			{
 				checks = {
 					# Build the crate as part of `nix flake check` for convenience
-					inherit cdp-print;
+					inherit wdp;
 
 					# Run clippy (and deny all warnings) on the crate source,
 					# again, resuing the dependency artifacts from above.
@@ -48,27 +48,27 @@
 					# Note that this is done as a separate derivation so that
 					# we can block the CI if there are issues here, but not
 					# prevent downstream consumers from building our crate by itself.
-					cdp-print-clippy = craneLib.cargoClippy {
+					wdp-clippy = craneLib.cargoClippy {
 						inherit cargoArtifacts src;
 						cargoClippyExtraArgs = "-- --deny warnings";
 					};
 
 					# Check formatting
-					cdp-print-fmt = craneLib.cargoFmt {
+					wdp-fmt = craneLib.cargoFmt {
 						inherit src;
 					};
 				} // lib.optionalAttrs (system == "x86_64-linux") {
 					# NB: cargo-tarpaulin only supports x86_64 systems
 					# Check code coverage (note: this will not upload coverage anywhere)
-					cdp-print-coverage = craneLib.cargoTarpaulin {
+					wdp-coverage = craneLib.cargoTarpaulin {
 						inherit cargoArtifacts src;
 					};
 				};
 
-				packages.default = cdp-print;
+				packages.default = wdp;
 
 				apps.default = flake-utils.lib.mkApp {
-					drv = cdp-print;
+					drv = wdp;
 				};
 
 				devShells.default = pkgs.mkShell {
