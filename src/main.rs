@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use ::wdp::{write_pdf, Options, Result};
 use fantoccini::{wd::Capabilities, ClientBuilder};
+use wdp::{write_pdf, Options, Result};
 use webdriver::command::PrintParameters;
 
 #[tokio::main]
