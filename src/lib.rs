@@ -33,7 +33,7 @@ pub async fn write_pdf(
 	client.goto(opt.input_url.as_str()).await?;
 
 	// get current page as PDF via byte array
-	let pdf_data = print_pdf(&client, parameters).await?;
+	let pdf_data = print_pdf(client, parameters).await?;
 	// write byte array to file
 	std::fs::write(&opt.output_filename, pdf_data)?;
 
