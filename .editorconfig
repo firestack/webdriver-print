@@ -7,9 +7,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
 indent_style = tab
-# an indent is a single tab, the width is user determined, 
-# a tab is not ment for formatting.
-# indent_size = 3 
+# an indent is a single tab, the width is user determined,
+# a tab is not meant for formatting.
+# indent_size = 3
 
 # Ignore diffs/patches
 [*.{diff,patch}]
