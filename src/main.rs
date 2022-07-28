@@ -38,4 +38,6 @@ async fn main() -> Result<()> {
 	}
 
 	client.close().await?;
+
+	pdf_result
 }
