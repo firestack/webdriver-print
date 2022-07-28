@@ -67,7 +67,8 @@
 
 				packages.default = wdp;
 
-				apps.default = flake-utils.lib.mkApp {
+				apps.default = self.apps.${system}.wdp;
+				apps.wdp = flake-utils.lib.mkApp {
 					drv = wdp;
 				};
 
