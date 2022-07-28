@@ -23,7 +23,7 @@
 				inherit (pkgs) lib;
 
 				craneLib = crane.lib.${system};
-				src = ./.;
+				src = builtins.path { path = ./.; name = "wdp-src"; };
 
 				# Build *just* the cargo dependencies, so we can reuse
 				# all of that work (e.g. via cachix) when running in CI
