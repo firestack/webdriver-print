@@ -1,8 +1,27 @@
+use std::path::PathBuf;
+use url::Url;
 use webdriver::command::PrintParameters;
 
 /// This `Result` type allows us to dynamically return anything implementing `Error` in the `Err(E)` enum
 #[doc(hidden)]
 pub type Result<T, E = Box<dyn std::error::Error + Send + Sync + 'static>> = core::result::Result<T, E>;
+
+#[derive(clap::Parser, Debug)]
+pub struct Options {
+	pub input_url: Url,
+
+	#[clap(short, long, default_value = "http://localhost:4444")]
+	pub webdriver_url: Url,
+
+	#[clap(short, long, default_value = "./output.pdf")]
+	pub output_filename: PathBuf,
+
+	#[clap(short, long)]
+	pub keep_failure: bool,
+
+	#[clap(short, long, action)]
+	pub headless: bool,
+}
 
 
 #[derive(Debug)]
