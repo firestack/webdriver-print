@@ -21,11 +21,11 @@ async fn main() -> Result<()> {
 		].into_iter().collect()
 	};
 
-	let c = ClientBuilder::rustls()
+	let client = ClientBuilder::rustls()
 		.capabilities(capabilities)
 		.connect(options.webdriver_url.as_str())
 		.await?;
 
 
-	c.close().await?;
+	client.close().await?;
 }
