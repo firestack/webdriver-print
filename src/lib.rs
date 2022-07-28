@@ -23,6 +23,18 @@ pub struct Options {
 	pub headless: bool,
 }
 
+pub async fn write_pdf(client: &fantoccini::Client, opt: &Options, parameters: PrintParameters) -> Result<()> {
+	// Open target page
+	client.goto(opt.input_url.as_str()).await?;
+
+	// get current page as PDF via byte array
+	let pdf_data = print_pdf(&client, parameters).await?;
+	// write byte array to file
+	std::fs::write(&opt.output_filename, pdf_data)?;
+
+	Ok(())
+}
+
 pub async fn print_pdf(c: &fantoccini::Client, parameters: PrintParameters) -> Result<Vec<u8>> {
 	// let print_command: WDPrint = parameters.into();
 
