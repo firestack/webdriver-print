@@ -33,6 +33,9 @@ async fn main() -> Result<()> {
 	};
 
 	let pdf_result = write_pdf(&client, &options, pdf_print_parameters).await;
+	if pdf_result.is_err() && options.keep_failure {
+		tokio::time::sleep(Duration::from_secs(10)).await;
+	}
 
 	client.close().await?;
 }
