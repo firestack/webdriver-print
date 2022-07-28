@@ -13,6 +13,7 @@
 	};
 
 	outputs = { self, nixpkgs, crane, flake-utils, ... }:
+		# untested on other platforms then "x86_64-linux"
 		flake-utils.lib.eachDefaultSystem (system:
 			let
 				pkgs = import nixpkgs {
