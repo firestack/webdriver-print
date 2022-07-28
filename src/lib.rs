@@ -4,7 +4,8 @@ use webdriver::command::PrintParameters;
 
 /// This `Result` type allows us to dynamically return anything implementing `Error` in the `Err(E)` enum
 #[doc(hidden)]
-pub type Result<T, E = Box<dyn std::error::Error + Send + Sync + 'static>> = core::result::Result<T, E>;
+pub type Result<T, E = Box<dyn std::error::Error + Send + Sync + 'static>> =
+	core::result::Result<T, E>;
 
 #[derive(clap::Parser, Debug)]
 pub struct Options {
@@ -23,7 +24,11 @@ pub struct Options {
 	pub headless: bool,
 }
 
-pub async fn write_pdf(client: &fantoccini::Client, opt: &Options, parameters: PrintParameters) -> Result<()> {
+pub async fn write_pdf(
+	client: &fantoccini::Client,
+	opt: &Options,
+	parameters: PrintParameters,
+) -> Result<()> {
 	// Open target page
 	client.goto(opt.input_url.as_str()).await?;
 
@@ -47,11 +52,10 @@ pub async fn print_pdf(c: &fantoccini::Client, parameters: PrintParameters) -> R
 
 #[derive(Debug)]
 pub struct PrintPDF {
-	parameters: PrintParameters
+	parameters: PrintParameters,
 }
 
-impl From<PrintParameters> for PrintPDF
-{
+impl From<PrintParameters> for PrintPDF {
 	fn from(parameters: PrintParameters) -> Self {
 		PrintPDF { parameters }
 	}
