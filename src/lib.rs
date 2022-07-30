@@ -22,6 +22,9 @@ pub struct Options {
 
 	#[clap(short, long, action)]
 	pub headless: bool,
+
+	#[clap(short = 'c', long, default_value = "./capabilities.json")]
+	pub browser_capabilities_config: PathBuf,
 }
 
 pub async fn write_pdf(

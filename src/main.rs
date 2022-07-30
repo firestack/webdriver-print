@@ -8,18 +8,7 @@ use webdriver::command::PrintParameters;
 async fn main() -> Result<()> {
 	let options: Options = clap::Parser::parse();
 
-	let capabilities: Capabilities = {
-		let headless_arg = match options.headless {
-			true => Some("-headless"),
-			false => None,
-		}
-		.unwrap_or("");
-		let ff_cap = serde_json::json!({ "args": [headless_arg] });
-
-		[("moz:firefoxOptions".to_string(), ff_cap)]
-			.into_iter()
-			.collect()
-	};
+	let capabilities = get_browser_capabilities(&options);
 
 	let webdriver = ClientBuilder::rustls()
 		.capabilities(capabilities)
@@ -39,4 +28,46 @@ async fn main() -> Result<()> {
 	webdriver.close().await?;
 
 	pdf_result
+}
+
+fn get_browser_capabilities(options: &Options) -> Capabilities {
+	let mut capabilities: Capabilities = {
+		let caps: Result<Capabilities> = read_json_to_type(&options.browser_capabilities_config);
+
+		caps.unwrap_or_else(|err| {
+			eprintln!(
+				"Error attempting to read capabilities configuration file(`{}`): {err}",
+				options.browser_capabilities_config.display()
+			);
+
+			Default::default()
+		})
+	};
+
+	if options.headless {
+		let ff_options = capabilities
+			.entry("moz:firefoxOptions")
+			.or_insert_with(|| Default::default());
+
+		if ff_options["args"].is_null() {
+			ff_options["args"] = json!([]);
+		}
+		assert_eq!(true, ff_options["args"].is_array());
+		// if !ff_options["args"].is_array() { panic!(); }
+
+		ff_options["args"]
+			.as_array_mut()
+			.map(|arr| arr.push(json!("-headless")));
+	}
+
+	capabilities
+}
+
+fn read_json_to_type<FT, P>(path: P) -> Result<FT>
+where
+	P: AsRef<Path>,
+	FT: serde::de::DeserializeOwned,
+{
+	let data = std::fs::read(path)?;
+	Ok(serde_json::from_slice::<FT>(&data)?)
 }
