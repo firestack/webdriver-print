@@ -1,6 +1,7 @@
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use fantoccini::{wd::Capabilities, ClientBuilder};
+use serde_json::json;
 use wdp::{write_pdf, Options, Result};
 use webdriver::command::PrintParameters;
 
