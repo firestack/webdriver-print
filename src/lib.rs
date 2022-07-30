@@ -25,6 +25,9 @@ pub struct Options {
 
 	#[clap(short = 'c', long, default_value = "./capabilities.json")]
 	pub browser_capabilities_config: PathBuf,
+
+	#[clap(short = 'p', long, default_value = "./print_parameters.json")]
+	pub print_parameters_config: PathBuf,
 }
 
 pub async fn write_pdf(

@@ -15,10 +15,7 @@ async fn main() -> Result<()> {
 		.connect(options.webdriver_url.as_str())
 		.await?;
 
-	let pdf_print_parameters = PrintParameters {
-		background: true,
-		..Default::default()
-	};
+	let pdf_print_parameters = get_print_parameters(&options);
 
 	let pdf_result = write_pdf(&webdriver, &options, pdf_print_parameters).await;
 	if pdf_result.is_err() && options.keep_failure {
@@ -28,6 +25,21 @@ async fn main() -> Result<()> {
 	webdriver.close().await?;
 
 	pdf_result
+}
+
+fn get_print_parameters(options: &Options) -> PrintParameters {
+	let parameters: Result<PrintParameters> = read_json_to_type(&options.print_parameters_config);
+
+	parameters.unwrap_or_else(|err| {
+		eprintln!(
+			"Errored attempting to read print parameters configuration file (`{}`): {err}",
+			options.print_parameters_config.display()
+		);
+		PrintParameters {
+			background: true,
+			..Default::default()
+		}
+	})
 }
 
 fn get_browser_capabilities(options: &Options) -> Capabilities {
