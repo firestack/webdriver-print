@@ -60,17 +60,21 @@ fn get_browser_capabilities(options: &Options) -> Capabilities {
 	if options.headless {
 		let ff_options = capabilities
 			.entry("moz:firefoxOptions")
-			.or_insert_with(|| Default::default());
+			.or_insert_with(Default::default);
 
 		if ff_options["args"].is_null() {
 			ff_options["args"] = json!([]);
 		}
-		assert_eq!(true, ff_options["args"].is_array());
+		assert!(
+			ff_options["args"].is_array(),
+			"'moz:firefoxOptions'.'args', must be an array"
+		);
 		// if !ff_options["args"].is_array() { panic!(); }
 
-		ff_options["args"]
-			.as_array_mut()
-			.map(|arr| arr.push(json!("-headless")));
+		match ff_options["args"].as_array_mut() {
+			Some(array) => array.push(json!("-headless")),
+			None => eprintln!("failed to combine `args` due to different input types. Could not request headless browser"),
+		}
 	}
 
 	capabilities
