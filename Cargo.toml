@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 base64 = "0.13.0"
-clap = { version = "3.2.15", features = ["derive"] }
+clap = { version = "3.2.15", features = ["derive", "env"] }
 fantoccini = { version = "0.19.1", features = ["rustls-tls"], default-features = false }
 http = "0.2.8"
 serde = "1.0.140"

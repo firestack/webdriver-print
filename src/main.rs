@@ -1,6 +1,7 @@
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use fantoccini::{wd::Capabilities, ClientBuilder};
+use serde_json::json;
 use wdp::{write_pdf, Options, Result};
 use webdriver::command::PrintParameters;
 
@@ -8,28 +9,14 @@ use webdriver::command::PrintParameters;
 async fn main() -> Result<()> {
 	let options: Options = clap::Parser::parse();
 
-	let capabilities: Capabilities = {
-		let headless_arg = match options.headless {
-			true => Some("-headless"),
-			false => None,
-		}
-		.unwrap_or("");
-		let ff_cap = serde_json::json!({ "args": [headless_arg] });
-
-		[("moz:firefoxOptions".to_string(), ff_cap)]
-			.into_iter()
-			.collect()
-	};
+	let capabilities = get_browser_capabilities(&options);
 
 	let webdriver = ClientBuilder::rustls()
 		.capabilities(capabilities)
 		.connect(options.webdriver_url.as_str())
 		.await?;
 
-	let pdf_print_parameters = PrintParameters {
-		background: true,
-		..Default::default()
-	};
+	let pdf_print_parameters = get_print_parameters(&options);
 
 	let pdf_result = write_pdf(&webdriver, &options, pdf_print_parameters).await;
 	if pdf_result.is_err() && options.keep_failure {
@@ -39,4 +26,65 @@ async fn main() -> Result<()> {
 	webdriver.close().await?;
 
 	pdf_result
+}
+
+fn get_print_parameters(options: &Options) -> PrintParameters {
+	let parameters: Result<PrintParameters> = read_json_to_type(&options.print_parameters_config);
+
+	parameters.unwrap_or_else(|err| {
+		eprintln!(
+			"Errored attempting to read print parameters configuration file (`{}`): {err}",
+			options.print_parameters_config.display()
+		);
+		PrintParameters {
+			background: true,
+			..Default::default()
+		}
+	})
+}
+
+fn get_browser_capabilities(options: &Options) -> Capabilities {
+	let mut capabilities: Capabilities = {
+		let caps: Result<Capabilities> = read_json_to_type(&options.browser_capabilities_config);
+
+		caps.unwrap_or_else(|err| {
+			eprintln!(
+				"Error attempting to read capabilities configuration file(`{}`): {err}",
+				options.browser_capabilities_config.display()
+			);
+
+			Default::default()
+		})
+	};
+
+	if options.headless {
+		let ff_options = capabilities
+			.entry("moz:firefoxOptions")
+			.or_insert_with(Default::default);
+
+		if ff_options["args"].is_null() {
+			ff_options["args"] = json!([]);
+		}
+		assert!(
+			ff_options["args"].is_array(),
+			"'moz:firefoxOptions'.'args', must be an array"
+		);
+		// if !ff_options["args"].is_array() { panic!(); }
+
+		match ff_options["args"].as_array_mut() {
+			Some(array) => array.push(json!("-headless")),
+			None => eprintln!("failed to combine `args` due to different input types. Could not request headless browser"),
+		}
+	}
+
+	capabilities
+}
+
+fn read_json_to_type<FT, P>(path: P) -> Result<FT>
+where
+	P: AsRef<Path>,
+	FT: serde::de::DeserializeOwned,
+{
+	let data = std::fs::read(path)?;
+	Ok(serde_json::from_slice::<FT>(&data)?)
 }
