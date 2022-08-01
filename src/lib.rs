@@ -9,24 +9,45 @@ pub type Result<T, E = Box<dyn std::error::Error + Send + Sync + 'static>> =
 
 #[derive(clap::Parser, Debug)]
 pub struct Options {
+	#[clap(env = "WDP_INPUT_URL")]
 	pub input_url: Url,
 
-	#[clap(short, long, default_value = "http://localhost:4444")]
+	#[clap(
+		short,
+		long,
+		default_value = "http://localhost:4444",
+		env = "WDP_WEBDRIVER_URL"
+	)]
 	pub webdriver_url: Url,
 
-	#[clap(short, long, default_value = "./output.pdf")]
+	#[clap(
+		short,
+		long,
+		default_value = "./output.pdf",
+		env = "WDP_OUTPUT_FILENAME"
+	)]
 	pub output_filename: PathBuf,
 
-	#[clap(short, long)]
+	#[clap(short, long, env = "WDP_KEEP_FAILURE")]
 	pub keep_failure: bool,
 
-	#[clap(short, long, action)]
+	#[clap(short, long, action, env = "WDP_HEADLESS")]
 	pub headless: bool,
 
-	#[clap(short = 'c', long, default_value = "./capabilities.json")]
+	#[clap(
+		short = 'c',
+		long,
+		default_value = "./capabilities.json",
+		env = "WDP_BROWSER_CAPABILITIES_CONFIG"
+	)]
 	pub browser_capabilities_config: PathBuf,
 
-	#[clap(short = 'p', long, default_value = "./print_parameters.json")]
+	#[clap(
+		short = 'p',
+		long,
+		default_value = "./print_parameters.json",
+		env = "WDP_PRINT_PARAMETERS_CONFIG"
+	)]
 	pub print_parameters_config: PathBuf,
 }
 
