@@ -66,11 +66,11 @@ pub async fn write_pdf(
 
 			let predicate = readyState => {
 				const state = readyState == "complete";
-				if state { callback(true); };
+				if (state) { callback(true); };
 				return state;
 			};
 
-			if !predicate(document.readyState) {
+			if (!predicate(document.readyState)) {
 				document.addEventListener('readystatechange', (event) => predicate(event.target.readyState));
 			}
 		"#, Default::default()).await;
