@@ -1,4 +1,5 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
+use tokio::time::sleep;
 use url::Url;
 use webdriver::command::PrintParameters;
 
@@ -49,6 +50,9 @@ pub struct Options {
 		env = "WDP_PRINT_PARAMETERS_CONFIG"
 	)]
 	pub print_parameters_config: PathBuf,
+
+	#[clap(long, env = "WDP_DEBUG_SLEEP_LENGTH")]
+	pub _debug_sleep_length: Option<std::num::NonZeroU16>,
 }
 
 pub async fn write_pdf(
@@ -76,6 +80,10 @@ pub async fn write_pdf(
 		"#, Default::default()).await;
 
 		if result.is_ok() { break; }
+	}
+
+	if let Some(length) = opt._debug_sleep_length {
+		sleep(Duration::from_secs(length.get().into())).await;
 	}
 
 	// get current page as PDF via byte array
