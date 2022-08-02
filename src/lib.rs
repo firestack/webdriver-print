@@ -59,6 +59,25 @@ pub async fn write_pdf(
 	// Open target page
 	client.goto(opt.input_url.as_str()).await?;
 
+	loop {
+		// Wait for documentReadystate == complete
+		let result = client.execute_async(r#"
+			const [callback] = arguments;
+
+			let predicate = readyState => {
+				const state = readyState == "complete";
+				if state { callback(true); };
+				return state;
+			};
+
+			if !predicate(document.readyState) {
+				document.addEventListener('readystatechange', (event) => predicate(event.target.readyState));
+			}
+		"#, Default::default()).await;
+
+		if result.is_ok() { break; }
+	}
+
 	// get current page as PDF via byte array
 	let pdf_data = print_pdf(client, parameters).await?;
 	// write byte array to file
