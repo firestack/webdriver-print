@@ -29,13 +29,15 @@ async fn main() -> Result<()> {
 }
 
 fn get_print_parameters(options: &Options) -> PrintParameters {
-	let parameters: Result<PrintParameters> = read_json_to_type(&options.print_parameters_config);
+	let parameters: Result<PrintParameters, _> = read_json_to_type(&options.print_parameters_config);
 
 	parameters.unwrap_or_else(|err| {
-		eprintln!(
-			"Errored attempting to read print parameters configuration file (`{}`): {err}",
-			options.print_parameters_config.display()
-		);
+		if err.kind() != std::io::ErrorKind::NotFound {
+			eprintln!(
+				"Errored attempting to read print parameters configuration file (`{}`): {err}",
+				options.print_parameters_config.display()
+			);
+		}
 		PrintParameters {
 			background: true,
 			..Default::default()
@@ -45,13 +47,15 @@ fn get_print_parameters(options: &Options) -> PrintParameters {
 
 fn get_browser_capabilities(options: &Options) -> Capabilities {
 	let mut capabilities: Capabilities = {
-		let caps: Result<Capabilities> = read_json_to_type(&options.browser_capabilities_config);
+		let caps: Result<Capabilities, _> = read_json_to_type(&options.browser_capabilities_config);
 
 		caps.unwrap_or_else(|err| {
-			eprintln!(
-				"Error attempting to read capabilities configuration file(`{}`): {err}",
-				options.browser_capabilities_config.display()
-			);
+			if err.kind() != std::io::ErrorKind::NotFound {
+				eprintln!(
+					"Error attempting to read capabilities configuration file(`{}`): {err}",
+					options.browser_capabilities_config.display()
+				);
+			}
 
 			Default::default()
 		})
@@ -80,7 +84,7 @@ fn get_browser_capabilities(options: &Options) -> Capabilities {
 	capabilities
 }
 
-fn read_json_to_type<FT, P>(path: P) -> Result<FT>
+fn read_json_to_type<FT, P>(path: P) -> Result<FT, std::io::Error>
 where
 	P: AsRef<Path>,
 	FT: serde::de::DeserializeOwned,
