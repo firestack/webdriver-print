@@ -125,9 +125,12 @@ impl fantoccini::wd::WebDriverCompatibleCommand for PrintPDF {
 	}
 
 	fn method_and_body(&self, _request_url: &url::Url) -> (http::Method, Option<String>) {
+		// let a = serde_json::to_string(&self.parameters).unwrap();
+		let mut value = serde_json::to_value(&self.parameters).unwrap();
+		value["printBackground"] = serde_json::json!(true);
 		(
 			http::Method::POST,
-			Some(serde_json::to_string(&self.parameters).unwrap()),
+			Some(value.to_string()),
 		)
 	}
 }
